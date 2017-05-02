@@ -16,7 +16,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".CocineroActivity" />
-        <activity android:name=".RepartidorActivity"></activity>
+        <activity android:name=".RepartidorActivity" />
+        <activity android:name=".InfoPedidoActivity"></activity>
     </application>
 
 </manifest>
