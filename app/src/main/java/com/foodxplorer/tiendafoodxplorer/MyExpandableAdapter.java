@@ -6,14 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 
-/**
- * Created by ALUMNEDAM on 03/05/2017.
- */
 
 public class MyExpandableAdapter extends BaseExpandableListAdapter
 {
@@ -71,7 +68,6 @@ public class MyExpandableAdapter extends BaseExpandableListAdapter
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent)
     {
-
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.parent_view, null);
         }
