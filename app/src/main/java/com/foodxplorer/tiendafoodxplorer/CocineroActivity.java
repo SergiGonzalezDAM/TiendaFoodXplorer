@@ -3,7 +3,7 @@ package com.foodxplorer.tiendafoodxplorer;
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.foodxplorer.tiendafoodxplorer.helper.Settings;
 import com.foodxplorer.tiendafoodxplorer.model.Pedido;
+import com.foodxplorer.tiendafoodxplorer.model.Producto;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,12 +30,14 @@ public class CocineroActivity extends ExpandableListActivity {
     private ArrayList<String> parentItems = new ArrayList<String>();
     private ArrayList<Object> childItems = new ArrayList<Object>();
     private ArrayList<Pedido> listaPedidos;
+    private ArrayList<Producto> listaProductos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TareaWSRecuperarPedidosPorCocinar tarea = new TareaWSRecuperarPedidosPorCocinar();
         tarea.execute();
+
         // Create ArrayList to hold parent Items and Child Items
         // Create Expandable List and set it's properties
         ExpandableListView expandableList = getExpandableListView();
@@ -42,9 +45,7 @@ public class CocineroActivity extends ExpandableListActivity {
         expandableList.setGroupIndicator(null);
         expandableList.setClickable(true);
         // Set the Items of Parent
-
         // Set The Child Data
-        setChildData();
         // Create the Adapter
         MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
         adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
@@ -57,8 +58,13 @@ public class CocineroActivity extends ExpandableListActivity {
     // method to add parent Items
     public void setGroupParents() {
         if (listaPedidos != null) {
+            TareaWSRecuperarProductosPedido tareaProductos = new TareaWSRecuperarProductosPedido();
             for (int i = 0; i < listaPedidos.size(); i++) {
-                parentItems.add("Pedido " + i+1);
+                parentItems.add("Pedido " + i + 1);
+            }
+            for (int i = 0; i < listaPedidos.size(); i++) {
+                tareaProductos.setIndice(i);
+                tareaProductos.execute();
             }
             System.out.println("ENTRO");
         } else {
@@ -69,39 +75,16 @@ public class CocineroActivity extends ExpandableListActivity {
 
     // method to set child data of each parent
     public void setChildData() {
-
         // Add Child Items for Fruits
-        ArrayList<String> child = new ArrayList<String>();
-        child.add("Margarita");
-        child.add("Barbacoa");
-        child.add("4 Quesos");
-
-        childItems.add(child);
-
-        // Add Child Items for Flowers
-        child = new ArrayList<String>();
-        child.add("Jamón y Queso");
-
-        childItems.add(child);
-
-        // Add Child Items for Animals
-        child = new ArrayList<String>();
-        child.add("Barbacoa");
-        child.add("Tropical");
-
-        childItems.add(child);
-
-        // Add Child Items for Birds
-        child = new ArrayList<String>();
-        child.add("5 Quesos");
-        child.add("Capricho Ibérico");
-
+        ArrayList<String> child = new ArrayList();
+        for (Producto p : listaProductos) {
+            child.add(p.getNombre());
+        }
         childItems.add(child);
     }
 
     class TareaWSRecuperarPedidosPorCocinar extends AsyncTask<Object, Void, Boolean> {
         JSONArray listadoPedidosJSON;
-
 
         @Override
         protected Boolean doInBackground(Object... params) {
@@ -151,6 +134,78 @@ public class CocineroActivity extends ExpandableListActivity {
                         jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"));
                 listaPedidos.add(pedido);
             }
+        }
+    }
+
+    class TareaWSRecuperarProductosPedido extends AsyncTask<Object, Void, Boolean> {
+        JSONArray productosJSON;
+        int indice;
+
+        public void setIndice(int indice) {
+            this.indice = indice;
+        }
+
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            BufferedReader reader;
+            URL url;
+            try {
+                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
+                reader = getBufferedReader(url);
+                productosJSON = new JSONArray(reader.readLine());
+            } catch (java.io.FileNotFoundException ex) {
+                Log.e(LOGTAG, "Error al obtener los productos");
+            } catch (java.io.IOException ex) {
+                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD externa:");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return true;
+        }
+
+        private BufferedReader getBufferedReader(URL url) throws java.io.IOException {
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            // conn.setReadTimeout(10000 /*milliseconds*/);
+            // conn.setConnectTimeout(10000);
+            conn.setRequestProperty("Content-Type", "application/json");
+            return new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                try {
+                    if (!rellenarArray()) {
+                        System.out.println("ERROR");
+                    } else {
+                        setChildData();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private boolean rellenarArray() throws JSONException {
+            boolean estado;
+            listaProductos = new ArrayList<>();
+            if (productosJSON.length() > 0) {
+                for (int i = 0; i < productosJSON.length(); i++) {
+                    JSONObject jsonobject = productosJSON.getJSONObject(i);
+                    Producto p = new Producto(jsonobject.getInt("idProducto"),
+                            jsonobject.getString("nombre"), jsonobject.getString("descripcion"),
+                            jsonobject.getDouble("precio"), jsonobject.getInt("iva"),
+                            jsonobject.getInt("ofertaDescuento"), jsonobject.getInt("activo"),
+                            jsonobject.getInt("idTipoProducto"),
+                            jsonobject.getString("urlImagen"));
+                    listaProductos.add(p);
+                }
+                estado = true;
+            } else {
+                estado = false;
+            }
+            return estado;
         }
     }
 
