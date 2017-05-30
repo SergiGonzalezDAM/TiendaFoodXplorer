@@ -45,26 +45,15 @@
         android:layout_alignLeft="@+id/textViewNombreCliente"
         android:layout_alignStart="@+id/textViewNombreCliente" />
 
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:id="@+id/spinnerEstado"
-        android:layout_below="@+id/textViewDireccion"
-        android:layout_alignLeft="@+id/textViewDireccion"
-        android:layout_alignStart="@+id/textViewDireccion"
-        android:layout_alignRight="@+id/textViewNombreCliente"
-        android:layout_alignEnd="@+id/textViewNombreCliente" />
-
     <Button
-        android:text="Guardar"
+        android:id="@+id/btnGuardarEstado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnGuardarEstado"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="40dp"
+        android:text="Listo para entregar"
         android:layout_below="@+id/textViewDireccion"
-        android:layout_alignRight="@+id/textViewImporte"
-        android:layout_alignEnd="@+id/textViewImporte" />
+        android:layout_toLeftOf="@+id/textViewImporte"
+        android:layout_toStartOf="@+id/textViewImporte" />
 
     <ListView
         android:layout_width="match_parent"

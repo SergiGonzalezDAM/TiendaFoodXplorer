@@ -2,11 +2,15 @@ package com.foodxplorer.tiendafoodxplorer;
 
 import android.app.ExpandableListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
@@ -20,13 +24,14 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
 import static com.foodxplorer.tiendafoodxplorer.helper.Settings.LOGTAG;
 
-public class CocineroActivity extends ExpandableListActivity {
+public class CocineroActivity extends ExpandableListActivity implements ExpandableListView.OnGroupClickListener {
     private ArrayList<String> parentItems = new ArrayList<String>();
     private ArrayList<Object> childItems = new ArrayList<Object>();
     private ArrayList<Pedido> listaPedidos;
@@ -50,8 +55,10 @@ public class CocineroActivity extends ExpandableListActivity {
         // Create the Adapter
 
         expandableList.setOnChildClickListener(this);
+        expandableList.setOnGroupClickListener(this);
 
     }
+
 
     // method to add parent Items
     public void setGroupParents() {
@@ -74,6 +81,7 @@ public class CocineroActivity extends ExpandableListActivity {
 
     // method to set child data of each parent
     public void setChildData() {
+
         ArrayList<String> child = new ArrayList();
         for (Producto p : listaProductos) {
             child.add(p.getNombre());
@@ -85,6 +93,8 @@ public class CocineroActivity extends ExpandableListActivity {
             adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), CocineroActivity.this);
             // Set the Adapter to expandableList
             expandableList.setAdapter(adapter);
+            for (int i = 0; i < adapter.getGroupCount(); i++)
+                expandableList.expandGroup(i);
         } else {
             TareaWSRecuperarProductosPedido tareaProductos = new TareaWSRecuperarProductosPedido();
             tareaProductos.setIndice(cont);
@@ -92,6 +102,15 @@ public class CocineroActivity extends ExpandableListActivity {
         }
 
     }
+
+    @Override
+    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+        Intent in = new Intent(this, InfoPedidoActivity.class);
+        in.putExtra("pedido", listaPedidos.get(i));
+        startActivity(in);
+        return true;
+    }
+
 
     class TareaWSRecuperarPedidosPorCocinar extends AsyncTask<Object, Void, Boolean> {
         JSONArray listadoPedidosJSON;
@@ -141,7 +160,7 @@ public class CocineroActivity extends ExpandableListActivity {
             for (int i = 0; i < listadoPedidosJSON.length(); i++) {
                 JSONObject jsonobject = listadoPedidosJSON.getJSONObject(i);
                 Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
-                        jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"));
+                        jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), jsonobject.getString("correo"));
                 listaPedidos.add(pedido);
             }
         }

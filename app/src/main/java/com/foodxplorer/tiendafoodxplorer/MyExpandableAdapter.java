@@ -60,6 +60,7 @@ public class MyExpandableAdapter extends BaseExpandableListAdapter
                         Toast.LENGTH_SHORT).show();
             }
         });
+
         return convertView;
     }
 
