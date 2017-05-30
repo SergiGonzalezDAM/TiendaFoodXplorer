@@ -9,7 +9,7 @@ package com.foodxplorer.tiendafoodxplorer.helper;
 
 public class Settings {
 
-    public static final  String DIRECCIO_SERVIDOR="http://192.168.120.59:40223/";
+    public static final  String DIRECCIO_SERVIDOR="http://192.168.120.144:40223/";
     public static final String PATH="ServcioFoodXPlorer/webresources/generic/";
     public static final  String LOGTAG="FoodXplorer Client";
 

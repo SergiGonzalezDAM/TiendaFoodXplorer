@@ -31,26 +31,24 @@ public class CocineroActivity extends ExpandableListActivity {
     private ArrayList<Object> childItems = new ArrayList<Object>();
     private ArrayList<Pedido> listaPedidos;
     private ArrayList<Producto> listaProductos;
+    private ExpandableListView expandableList;
+    private int cont = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TareaWSRecuperarPedidosPorCocinar tarea = new TareaWSRecuperarPedidosPorCocinar();
         tarea.execute();
-
         // Create ArrayList to hold parent Items and Child Items
         // Create Expandable List and set it's properties
-        ExpandableListView expandableList = getExpandableListView();
+        expandableList = getExpandableListView();
         expandableList.setDividerHeight(2);
         expandableList.setGroupIndicator(null);
         expandableList.setClickable(true);
         // Set the Items of Parent
         // Set The Child Data
         // Create the Adapter
-        MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
-        adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
-        // Set the Adapter to expandableList
-        expandableList.setAdapter(adapter);
+
         expandableList.setOnChildClickListener(this);
 
     }
@@ -60,12 +58,13 @@ public class CocineroActivity extends ExpandableListActivity {
         if (listaPedidos != null) {
             TareaWSRecuperarProductosPedido tareaProductos = new TareaWSRecuperarProductosPedido();
             for (int i = 0; i < listaPedidos.size(); i++) {
-                parentItems.add("Pedido " + i + 1);
+                parentItems.add("Pedido " + (i + 1));
             }
-            for (int i = 0; i < listaPedidos.size(); i++) {
-                tareaProductos.setIndice(i);
-                tareaProductos.execute();
-            }
+//            for (int i = 0; i < listaPedidos.size(); i++) {
+//
+//            }
+            tareaProductos.setIndice(cont);
+            tareaProductos.execute();
             System.out.println("ENTRO");
         } else {
             System.out.println("NO ENTRO");
@@ -75,12 +74,23 @@ public class CocineroActivity extends ExpandableListActivity {
 
     // method to set child data of each parent
     public void setChildData() {
-        // Add Child Items for Fruits
         ArrayList<String> child = new ArrayList();
         for (Producto p : listaProductos) {
             child.add(p.getNombre());
         }
         childItems.add(child);
+        cont++;
+        if (cont >= listaPedidos.size()) {
+            MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
+            adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), CocineroActivity.this);
+            // Set the Adapter to expandableList
+            expandableList.setAdapter(adapter);
+        } else {
+            TareaWSRecuperarProductosPedido tareaProductos = new TareaWSRecuperarProductosPedido();
+            tareaProductos.setIndice(cont);
+            tareaProductos.execute();
+        }
+
     }
 
     class TareaWSRecuperarPedidosPorCocinar extends AsyncTask<Object, Void, Boolean> {
@@ -150,6 +160,7 @@ public class CocineroActivity extends ExpandableListActivity {
             BufferedReader reader;
             URL url;
             try {
+                System.out.println(cont);
                 url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
@@ -179,7 +190,9 @@ public class CocineroActivity extends ExpandableListActivity {
                     if (!rellenarArray()) {
                         System.out.println("ERROR");
                     } else {
-                        setChildData();
+                        if (cont <= listaPedidos.size()) {
+                            setChildData();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
