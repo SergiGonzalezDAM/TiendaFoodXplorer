@@ -37,7 +37,9 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
     private ArrayList<Pedido> listaPedidos;
     private ArrayList<Producto> listaProductos;
     private int cont = 0;
-//hola
+    private boolean actualizadoAuto = true;
+
+    //hola
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +107,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
         Intent in = new Intent(this, InfoPedidoRepartidorActivity.class);
         in.putExtra("pedido", listaPedidos.get(i));
+        actualizadoAuto = false;
         startActivity(in);
         return true;
     }
@@ -255,8 +258,11 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             public void run() {
                 //If we have the autoUpdate turned on and we're looking for the last position of some
                 //or various bus, create a Handler that will launch the update background task every 3000 ms
-                new TareaWSRecuperarPedidosParaRepartir().execute();
-                handler.postDelayed(this, 3000);
+                if (actualizadoAuto) {
+                    new TareaWSRecuperarPedidosParaRepartir().execute();
+                    handler.postDelayed(this, 3000);
+                }
+
                 //AutoUpdate not allowed in the "Entre Dates" option
             }
         };
@@ -264,5 +270,10 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
         handler.postDelayed(r, 0);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        actualizadoAuto = false;
+    }
 }
 

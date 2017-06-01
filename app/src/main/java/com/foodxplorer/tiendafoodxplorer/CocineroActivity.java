@@ -56,7 +56,7 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
         // Create the Adapter
         expandableList.setOnChildClickListener(this);
         expandableList.setOnGroupClickListener(this);
-        actualitzaDades();
+        //actualitzaDades();
     }
 
 
