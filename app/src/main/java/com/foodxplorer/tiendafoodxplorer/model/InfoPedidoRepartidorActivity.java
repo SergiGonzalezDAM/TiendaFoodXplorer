@@ -1,9 +1,9 @@
-package com.foodxplorer.tiendafoodxplorer;
+package com.foodxplorer.tiendafoodxplorer.model;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -12,12 +12,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.foodxplorer.tiendafoodxplorer.R;
+import com.foodxplorer.tiendafoodxplorer.RepartidorActivity;
 import com.foodxplorer.tiendafoodxplorer.adapters.AdaptadorProducto;
 import com.foodxplorer.tiendafoodxplorer.helper.Settings;
-import com.foodxplorer.tiendafoodxplorer.model.Direccion;
-import com.foodxplorer.tiendafoodxplorer.model.LineasPedido;
-import com.foodxplorer.tiendafoodxplorer.model.Pedido;
-import com.foodxplorer.tiendafoodxplorer.model.Producto;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,39 +36,38 @@ import java.util.List;
 
 import static com.foodxplorer.tiendafoodxplorer.helper.Settings.LOGTAG;
 
-public class InfoPedidoActivity extends AppCompatActivity implements View.OnClickListener {
+public class InfoPedidoRepartidorActivity extends AppCompatActivity implements View.OnClickListener {
     private Pedido pedido;
     private TextView textViewNombreCliente, textViewDireccion, textViewImporte;
-    private Button btnListoRepartir;
-    private final int idEstado = 2;
+    private Button btnEnReparto;
+    private Button btnEntregado;
     private ListView listView;
-    private ArrayAdapter<String> adaptador;
     private AdaptadorProducto adapProducto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_info_pedido);
-        List<String> lista = new ArrayList();
-        lista.add("Barbacoa");
-        lista.add("4 Quesos");
-        //List<String> listaEj = new ArrayList();
-//        listaEj.add("Por hacer");
-//        listaEj.add("Listo para entregar");
-//        listaEj.add("En reparto");
-//        listaEj.add("Entregado");
+        setContentView(R.layout.activity_info_pedidorepartidor);
         listView = (ListView) findViewById(R.id.listViewInfoPedido);
-        adaptador = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lista);
-        listView.setAdapter(adaptador);
         Intent i = getIntent();
         pedido = (Pedido) i.getSerializableExtra("pedido");
+        btnEnReparto = (Button) findViewById(R.id.btnEnReparto);
+        btnEnReparto.setOnClickListener(this);
+        btnEntregado = (Button) findViewById(R.id.btnEntregado);
+        btnEntregado.setOnClickListener(this);
+        if (pedido.getIdEstado() == 2) {
+            btnEnReparto.setEnabled(true);
+            btnEntregado.setEnabled(false);
+        } else if (pedido.getIdEstado() == 3) {
+            btnEnReparto.setEnabled(false);
+            btnEntregado.setEnabled(true);
+        }
         Toast.makeText(this, pedido.toString(), Toast.LENGTH_SHORT).show();
         textViewNombreCliente = (TextView) findViewById(R.id.textViewNombreCliente);
         textViewNombreCliente.setText(pedido.getCorreo());
         textViewDireccion = (TextView) findViewById(R.id.textViewDireccion);
         textViewImporte = (TextView) findViewById(R.id.textViewImporte);
-        btnListoRepartir = (Button) findViewById(R.id.btnEntregado);
-        btnListoRepartir.setOnClickListener(this);
+
         new TareaWSRecuperarDireccion().execute();
         new TareaWSRecuperarLineasPedido().execute();
         new TareaWSRecuperarProductosPedido().execute();
@@ -78,8 +75,14 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        new TareaWSActualizarEstado().execute(idEstado, pedido.getIdPedido());
-        btnListoRepartir.setEnabled(false);
+        if (R.id.btnEnReparto == view.getId()) {
+            System.out.println(pedido.getIdPedido());
+            new TareaWSActualizarEstadoEnReparto().execute(3, pedido.getIdPedido());
+            btnEntregado.setEnabled(true);
+            btnEnReparto.setEnabled(false);
+        } else {
+            new TareaWSActualizarEstadoEntregado().execute(pedido.getIdPedido());
+        }
     }
 
     class TareaWSRecuperarDireccion extends AsyncTask<Object, Void, Boolean> {
@@ -92,7 +95,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
                 direccionJSON = readJsonFromUrl(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/direccion/obtener2/" + pedido.getIdDireccion());
             } catch (java.io.FileNotFoundException ex) {
                 Log.e(LOGTAG, "Error al obtener la direccion");
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD externa:");
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -127,7 +130,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             if (result) {
                 try {
                     if (!rellenarObjeto()) {
-                        Toast.makeText(InfoPedidoActivity.this, "NO EXISTE ESE NUMERO DE PEDIDO", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InfoPedidoRepartidorActivity.this, "NO EXISTE ESE NUMERO DE PEDIDO", Toast.LENGTH_SHORT).show();
                     } else {
                         textViewDireccion.setText(direccionObject.getPiso() + "\n" + direccionObject.getCalle() + "\n" + direccionObject.getPoblacion());
                     }
@@ -158,7 +161,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected Boolean doInBackground(Object... params) {
             BufferedReader reader;
-            URL url = null;
+            URL url;
             try {
                 url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/pedido/obtenerDetalles/" + pedido.getIdPedido());
                 reader = getBufferedReader(url);
@@ -166,7 +169,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
 
             } catch (java.io.FileNotFoundException ex) {
                 Log.e(LOGTAG, "Error al obtener la direccion");
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD externa:");
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -174,7 +177,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             return true;
         }
 
-        private BufferedReader getBufferedReader(URL url) throws java.io.IOException {
+        private BufferedReader getBufferedReader(URL url) throws IOException {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             // conn.setReadTimeout(10000 /*milliseconds*/);
@@ -188,7 +191,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             if (result) {
                 try {
                     if (!rellenarArray()) {
-                        Toast.makeText(InfoPedidoActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InfoPedidoRepartidorActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
                     } else {
                         for (LineasPedido linea : listaLineasPedido) {
                             importeTotal += linea.getPrecio();
@@ -219,14 +222,14 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    class TareaWSActualizarEstado extends AsyncTask<Object, Integer, Boolean> {
+    class TareaWSActualizarEstadoEnReparto extends AsyncTask<Object, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(Object... params) {
             boolean insertadoEnDBexterna = true;
             OutputStreamWriter osw;
             try {
-                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstado");
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstadoPedidoEnReparto");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -238,10 +241,10 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
                 osw.flush();
                 osw.close();
                 System.err.println(conn.getResponseMessage());
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena");
                 insertadoEnDBexterna = false;
-            } catch (org.json.JSONException ex) {
+            } catch (JSONException ex) {
                 Log.e(LOGTAG, "Error en la transformacio de l'objecte JSON: " + ex);
                 insertadoEnDBexterna = false;
             }
@@ -252,6 +255,48 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             JSONObject dato = new JSONObject();
             dato.put("idEstado", params[0]);
             dato.put("idPedido", params[1]);
+            Log.d(LOGTAG, "El estado que se insertara es:" + dato.toString());
+            return String.valueOf(dato);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+        }
+    }
+
+    class TareaWSActualizarEstadoEntregado extends AsyncTask<Object, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            boolean insertadoEnDBexterna = true;
+            OutputStreamWriter osw;
+            try {
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstadoPedidoEntregado");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(500);
+                conn.setRequestProperty("Content-Type", "application/json");
+                osw = new OutputStreamWriter(conn.getOutputStream());
+                osw.write(getStringJSON(params));
+                osw.flush();
+                osw.close();
+                System.err.println(conn.getResponseMessage());
+            } catch (IOException ex) {
+                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena");
+                insertadoEnDBexterna = false;
+            } catch (JSONException ex) {
+                Log.e(LOGTAG, "Error en la transformacio de l'objecte JSON: " + ex);
+                insertadoEnDBexterna = false;
+            }
+            return insertadoEnDBexterna;
+        }
+
+        private String getStringJSON(Object... params) throws JSONException, UnsupportedEncodingException {
+            JSONObject dato = new JSONObject();
+            dato.put("idPedido", params[0]);
             Log.d(LOGTAG, "El estado que se insertara es:" + dato.toString());
             return String.valueOf(dato);
         }
@@ -276,7 +321,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
                 productosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {
                 Log.e(LOGTAG, "Error al obtener los productos");
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD externa:");
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -284,7 +329,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             return true;
         }
 
-        private BufferedReader getBufferedReader(URL url) throws java.io.IOException {
+        private BufferedReader getBufferedReader(URL url) throws IOException {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             // conn.setReadTimeout(10000 /*milliseconds*/);
@@ -298,9 +343,9 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             if (result) {
                 try {
                     if (!rellenarArray()) {
-                        Toast.makeText(InfoPedidoActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InfoPedidoRepartidorActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
                     } else {
-                        adapProducto = new AdaptadorProducto(InfoPedidoActivity.this, listaProductos);
+                        adapProducto = new AdaptadorProducto(InfoPedidoRepartidorActivity.this, listaProductos);
                         listView.setAdapter(adapProducto);
                     }
                 } catch (JSONException e) {

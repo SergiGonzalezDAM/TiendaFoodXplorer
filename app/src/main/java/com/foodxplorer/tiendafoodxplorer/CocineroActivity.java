@@ -88,6 +88,7 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
         }
         childItems.add(child);
         cont++;
+        System.out.println(cont);
         if (cont >= listaPedidos.size()) {
             MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
             adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), CocineroActivity.this);
@@ -100,7 +101,6 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             tareaProductos.setIndice(cont);
             tareaProductos.execute();
         }
-
     }
 
     @Override

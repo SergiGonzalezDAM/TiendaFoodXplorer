@@ -11,6 +11,16 @@
     tools:context="com.foodxplorer.tiendafoodxplorer.InfoPedidoActivity"
     android:background="@drawable/background_d">
 
+    <Button
+        android:id="@+id/btnEnReparto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewDireccion"
+        android:layout_marginTop="23dp"
+        android:layout_toEndOf="@+id/textViewNombreCliente"
+        android:layout_toRightOf="@+id/textViewNombreCliente"
+        android:text="En reparto" />
+
     <TextView
         android:text="Nombre Cliente"
         android:layout_width="wrap_content"
@@ -49,11 +59,12 @@
         android:id="@+id/btnEntregado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Listo para entregar"
-        android:layout_below="@+id/textViewDireccion"
-        android:layout_toLeftOf="@+id/textViewImporte"
-        android:layout_toStartOf="@+id/textViewImporte" />
+        android:layout_alignLeft="@+id/btnEnReparto"
+        android:layout_alignStart="@+id/btnEnReparto"
+        android:layout_below="@+id/btnEnReparto"
+        android:layout_marginTop="22dp"
+        android:enabled="false"
+        android:text="Entregado" />
 
     <ListView
         android:layout_width="match_parent"
