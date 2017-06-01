@@ -37,7 +37,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
     private ArrayList<Pedido> listaPedidos;
     private ArrayList<Producto> listaProductos;
     private int cont = 0;
-
+//hola
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +47,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
         expandableList = getExpandableListView();
         expandableList.setDividerHeight(2);
         expandableList.setGroupIndicator(null);
+        System.out.println("test");
         expandableList.setClickable(true);
         // Set the Items of Parent
         // Set The Child Data
