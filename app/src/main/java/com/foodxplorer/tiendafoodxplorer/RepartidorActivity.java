@@ -4,6 +4,7 @@ import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,9 +51,9 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
         // Set the Items of Parent
         // Set The Child Data
         // Create the Adapter
-
         expandableList.setOnChildClickListener(this);
         expandableList.setOnGroupClickListener(this);
+        actualitzaDades();
     }
 
     // method to add parent Items
@@ -245,6 +246,21 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             }
             return estado;
         }
+    }
+
+    private void actualitzaDades() {
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                //If we have the autoUpdate turned on and we're looking for the last position of some
+                //or various bus, create a Handler that will launch the update background task every 3000 ms
+                new TareaWSRecuperarPedidosParaRepartir().execute();
+                handler.postDelayed(this, 3000);
+                //AutoUpdate not allowed in the "Entre Dates" option
+            }
+        };
+        //Sets the handler to execute the Async task for the first time.
+        handler.postDelayed(r, 0);
     }
 
 }
