@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,10 +54,9 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
         // Set the Items of Parent
         // Set The Child Data
         // Create the Adapter
-
         expandableList.setOnChildClickListener(this);
         expandableList.setOnGroupClickListener(this);
-
+        actualitzaDades();
     }
 
 
@@ -239,6 +239,21 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             }
             return estado;
         }
+    }
+
+    private void actualitzaDades() {
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                //If we have the autoUpdate turned on and we're looking for the last position of some
+                //or various bus, create a Handler that will launch the update background task every 3000 ms
+                new TareaWSRecuperarPedidosPorCocinar().execute();
+                handler.postDelayed(this, 3000);
+                //AutoUpdate not allowed in the "Entre Dates" option
+            }
+        };
+        //Sets the handler to execute the Async task for the first time.
+        handler.postDelayed(r, 0);
     }
 
 }
