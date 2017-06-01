@@ -56,7 +56,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
         // Create the Adapter
         expandableList.setOnChildClickListener(this);
         expandableList.setOnGroupClickListener(this);
-        actualitzaDades();
+        //actualitzaDades();
     }
 
     // method to add parent Items
