@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import com.foodxplorer.tiendafoodxplorer.helper.Settings;
-import com.foodxplorer.tiendafoodxplorer.model.InfoPedidoRepartidorActivity;
 import com.foodxplorer.tiendafoodxplorer.model.Pedido;
 import com.foodxplorer.tiendafoodxplorer.model.Producto;
 
@@ -269,9 +267,8 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
                     cont = 0;
                     new TareaWSRecuperarPedidosParaRepartir().execute();
                     handler.postDelayed(this, 3000);
-                } else {
-                    new TareaWSRecuperarPedidosParaRepartir().execute();
                 }
+
                 //AutoUpdate not allowed in the "Entre Dates" option
             }
         };
