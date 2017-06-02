@@ -87,14 +87,20 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
         }
         childItems.add(child);
         cont++;
-        System.out.println(cont);
+        System.out.println("CONTADORRRRR " + cont);
         if (cont >= listaPedidos.size()) {
             MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
             adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), RepartidorActivity.this);
             // Set the Adapter to expandableList
             expandableList.setAdapter(adapter);
-            for (int i = 0; i < adapter.getGroupCount(); i++)
-                expandableList.expandGroup(i);
+            try {
+                for (int i = 0; i < adapter.getGroupCount(); i++) {
+                    expandableList.expandGroup(i);
+                }
+            } catch (Exception ex) {
+                System.out.println("ERROR");
+            }
+
         } else {
             TareaWSRecuperarProductosPedido tareaProductos = new TareaWSRecuperarProductosPedido();
             tareaProductos.setIndice(cont);
@@ -190,7 +196,8 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             BufferedReader reader;
             URL url;
             try {
-                System.out.println(cont);
+                System.out.println("contador" + cont);
+                System.out.println("LISTAPEDIDOS: " + listaPedidos.size());
                 url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
@@ -259,10 +266,12 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
                 //If we have the autoUpdate turned on and we're looking for the last position of some
                 //or various bus, create a Handler that will launch the update background task every 3000 ms
                 if (actualizadoAuto) {
+                    cont = 0;
                     new TareaWSRecuperarPedidosParaRepartir().execute();
                     handler.postDelayed(this, 3000);
+                } else {
+                    new TareaWSRecuperarPedidosParaRepartir().execute();
                 }
-
                 //AutoUpdate not allowed in the "Entre Dates" option
             }
         };
