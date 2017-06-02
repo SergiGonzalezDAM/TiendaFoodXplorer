@@ -82,6 +82,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             btnEnReparto.setEnabled(false);
         } else {
             new TareaWSActualizarEstadoEntregado().execute(pedido.getIdPedido());
+            btnEntregado.setEnabled(false);
         }
     }
 
@@ -92,7 +93,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
         @Override
         protected Boolean doInBackground(Object... params) {
             try {
-                direccionJSON = readJsonFromUrl(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/direccion/obtener2/" + pedido.getIdDireccion());
+                direccionJSON = readJsonFromUrl(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "direccion/obtener2/" + pedido.getIdDireccion());
             } catch (java.io.FileNotFoundException ex) {
                 Log.e(LOGTAG, "Error al obtener la direccion");
             } catch (IOException ex) {
@@ -163,7 +164,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             BufferedReader reader;
             URL url;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/pedido/obtenerDetalles/" + pedido.getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "pedido/obtenerDetalles/" + pedido.getIdPedido());
                 reader = getBufferedReader(url);
                 lineasPedidoJSON = new JSONArray(reader.readLine());
 
@@ -229,7 +230,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             boolean insertadoEnDBexterna = true;
             OutputStreamWriter osw;
             try {
-                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstadoPedidoEnReparto");
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "actualizarEstadoPedidoEnReparto");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -272,7 +273,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             boolean insertadoEnDBexterna = true;
             OutputStreamWriter osw;
             try {
-                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstadoPedidoEntregado");
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "actualizarEstadoPedidoEntregado");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -316,7 +317,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             BufferedReader reader;
             URL url;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + pedido.getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerProductosPorIdPedido/" + pedido.getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {

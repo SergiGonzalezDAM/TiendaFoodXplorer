@@ -120,7 +120,7 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             BufferedReader reader;
             URL url;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerPedidosPorCocinar");
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerPedidosPorCocinar");
                 reader = getBufferedReader(url);
                 listadoPedidosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {
@@ -191,7 +191,7 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             URL url;
             try {
                 System.out.println(cont);
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {

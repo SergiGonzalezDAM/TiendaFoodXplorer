@@ -89,7 +89,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected Boolean doInBackground(Object... params) {
             try {
-                direccionJSON = readJsonFromUrl(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/direccion/obtener2/" + pedido.getIdDireccion());
+                direccionJSON = readJsonFromUrl(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "direccion/obtener2/" + pedido.getIdDireccion());
             } catch (java.io.FileNotFoundException ex) {
                 Log.e(LOGTAG, "Error al obtener la direccion");
             } catch (java.io.IOException ex) {
@@ -160,7 +160,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             BufferedReader reader;
             URL url = null;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/pedido/obtenerDetalles/" + pedido.getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "pedido/obtenerDetalles/" + pedido.getIdPedido());
                 reader = getBufferedReader(url);
                 lineasPedidoJSON = new JSONArray(reader.readLine());
 
@@ -226,7 +226,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             boolean insertadoEnDBexterna = true;
             OutputStreamWriter osw;
             try {
-                URL url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/actualizarEstado");
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "actualizarEstado");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -271,7 +271,7 @@ public class InfoPedidoActivity extends AppCompatActivity implements View.OnClic
             BufferedReader reader;
             URL url;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + pedido.getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerProductosPorIdPedido/" + pedido.getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {

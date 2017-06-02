@@ -126,7 +126,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             BufferedReader reader;
             URL url;
             try {
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerPedidosParaRepartir");
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerPedidosParaRepartir");
                 reader = getBufferedReader(url);
                 listadoPedidosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {
@@ -198,7 +198,7 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             try {
                 System.out.println("contador" + cont);
                 System.out.println("LISTAPEDIDOS: " + listaPedidos.size());
-                url = new URL(Settings.DIRECCIO_SERVIDOR + "ServcioFoodXPlorer/webresources/generic/obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
+                url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "obtenerProductosPorIdPedido/" + listaPedidos.get(indice).getIdPedido());
                 reader = getBufferedReader(url);
                 productosJSON = new JSONArray(reader.readLine());
             } catch (java.io.FileNotFoundException ex) {
