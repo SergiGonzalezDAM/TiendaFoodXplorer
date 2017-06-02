@@ -21,6 +21,9 @@ import java.util.ArrayList;
  * Created by ALUMNEDAM on 15/05/2017.
  */
 
+/**
+ * Esta clase implementa todos los metodos de la clase BaseAdapter.
+ */
 public class AdaptadorProducto extends BaseAdapter
 {
     protected Activity activity;

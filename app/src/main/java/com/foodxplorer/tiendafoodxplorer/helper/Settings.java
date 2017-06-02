@@ -7,6 +7,9 @@ package com.foodxplorer.tiendafoodxplorer.helper;
  * Created by IES on 19/05/2017.
  */
 
+/**
+ * Clase donde van los literales.
+ */
 public class Settings {
 
     public static final  String DIRECCIO_SERVIDOR="http://192.168.120.144:40223/";

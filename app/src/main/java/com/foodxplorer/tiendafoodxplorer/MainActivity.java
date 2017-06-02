@@ -10,7 +10,10 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnRepartidor, btnCocinero;
 
-    //TODO investigar como hacer para que se ponga por defecto expandido
+    /**
+     * Al iniciar la activity se recogen los elementos del layout.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +24,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCocinero.setOnClickListener(this);
     }
 
+    /**
+     * Si clicamos el botón de cocinero, nos llevará a CocineroActivity.
+     * Si clicamos el botón de repartidor, nos llevará a RepartidorActivity.
+     * @param view
+     */
     @Override
     public void onClick(View view) {
         if (R.id.btnCocinero == view.getId()) {

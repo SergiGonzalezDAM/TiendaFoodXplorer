@@ -40,6 +40,12 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
     private ExpandableListView expandableList;
     private int cont = 0;
 
+    /**
+     * Al iniciar la activity se llama a la tarea de recuperar los pedidos para cocinar, y se definen
+     * propiedades de la lista expandida.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +121,13 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
     class TareaWSRecuperarPedidosPorCocinar extends AsyncTask<Object, Void, Boolean> {
         JSONArray listadoPedidosJSON;
 
+        /**
+         * Se guardan en un json array los pedidos listos para cocinar, que le llegan de la llamada
+         * a la respectiva url del servicio web rest.
+         *
+         * @param params
+         * @return
+         */
         @Override
         protected Boolean doInBackground(Object... params) {
             BufferedReader reader;
@@ -133,6 +146,13 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             return true;
         }
 
+        /**
+         * Devuelve un BufferedReader configurado para una petición GET.
+         *
+         * @param url
+         * @return
+         * @throws java.io.IOException
+         */
         private BufferedReader getBufferedReader(URL url) throws java.io.IOException {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -142,6 +162,12 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
             return new BufferedReader(new InputStreamReader(conn.getInputStream()));
         }
 
+        /**
+         * Si el array de pedidos se ha rellenado correctamente se llama al metodo de setear los
+         * grupos de la lista expandida. Si no, salta un mensaje de que no hay pedidos.
+         *
+         * @param result
+         */
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
@@ -165,9 +191,15 @@ public class CocineroActivity extends ExpandableListActivity implements Expandab
                 listaPedidos = new ArrayList();
                 for (int i = 0; i < listadoPedidosJSON.length(); i++) {
                     JSONObject jsonobject = listadoPedidosJSON.getJSONObject(i);
-                    Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
-                            jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), jsonobject.getString("correo"));
-                    listaPedidos.add(pedido);
+                    if (jsonobject.length() == 4) {
+                        Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
+                                jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), "NO REGISTRADO");
+                        listaPedidos.add(pedido);
+                    } else if (jsonobject.length() == 5) {
+                        Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
+                                jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), jsonobject.getString("correo"));
+                        listaPedidos.add(pedido);
+                    }
                 }
                 estado = true;
             } else {
