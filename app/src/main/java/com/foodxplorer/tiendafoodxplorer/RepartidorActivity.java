@@ -166,12 +166,17 @@ public class RepartidorActivity extends ExpandableListActivity implements Expand
             boolean estado;
             if (listadoPedidosJSON.length() > 0) {
                 listaPedidos = new ArrayList();
-
                 for (int i = 0; i < listadoPedidosJSON.length(); i++) {
                     JSONObject jsonobject = listadoPedidosJSON.getJSONObject(i);
-                    Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
-                            jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), jsonobject.getString("correo"));
-                    listaPedidos.add(pedido);
+                    if (jsonobject.length() == 4) {
+                        Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
+                                jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), "NO REGISTRADO");
+                        listaPedidos.add(pedido);
+                    } else if (jsonobject.length() == 5) {
+                        Pedido pedido = new Pedido(jsonobject.getLong("idPedido"), jsonobject.getString("fechaSalida"),
+                                jsonobject.getLong("idDireccion"), jsonobject.getLong("idEstado"), jsonobject.getString("correo"));
+                        listaPedidos.add(pedido);
+                    }
                 }
                 estado = true;
             } else {
