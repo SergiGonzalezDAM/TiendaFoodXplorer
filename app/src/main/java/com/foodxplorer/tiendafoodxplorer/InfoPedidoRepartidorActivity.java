@@ -32,7 +32,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import static com.foodxplorer.tiendafoodxplorer.helper.Settings.LOGTAG;
 
@@ -51,6 +54,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
         listView = (ListView) findViewById(R.id.listViewInfoPedido);
         Intent i = getIntent();
         pedido = (Pedido) i.getSerializableExtra("pedido");
+        Toast.makeText(this, String.valueOf(pedido.getIdPedido()), Toast.LENGTH_SHORT).show();
         btnEnReparto = (Button) findViewById(R.id.btnEnReparto);
         btnEnReparto.setOnClickListener(this);
         btnEntregado = (Button) findViewById(R.id.btnEntregado);
@@ -83,6 +87,7 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
         } else {
             new TareaWSActualizarEstadoEntregado().execute(pedido.getIdPedido());
             btnEntregado.setEnabled(false);
+            new TareaWSActualizarFechaEntregaPedido().execute(pedido.getIdPedido());
         }
     }
 
@@ -274,6 +279,48 @@ public class InfoPedidoRepartidorActivity extends AppCompatActivity implements V
             OutputStreamWriter osw;
             try {
                 URL url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "actualizarEstadoPedidoEntregado");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(500);
+                conn.setRequestProperty("Content-Type", "application/json");
+                osw = new OutputStreamWriter(conn.getOutputStream());
+                osw.write(getStringJSON(params));
+                osw.flush();
+                osw.close();
+                System.err.println(conn.getResponseMessage());
+            } catch (IOException ex) {
+                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena");
+                insertadoEnDBexterna = false;
+            } catch (JSONException ex) {
+                Log.e(LOGTAG, "Error en la transformacio de l'objecte JSON: " + ex);
+                insertadoEnDBexterna = false;
+            }
+            return insertadoEnDBexterna;
+        }
+
+        private String getStringJSON(Object... params) throws JSONException, UnsupportedEncodingException {
+            JSONObject dato = new JSONObject();
+            dato.put("idPedido", params[0]);
+            Log.d(LOGTAG, "El estado que se insertara es:" + dato.toString());
+            return String.valueOf(dato);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+        }
+    }
+
+    class TareaWSActualizarFechaEntregaPedido extends AsyncTask<Object, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            boolean insertadoEnDBexterna = true;
+            OutputStreamWriter osw;
+            try {
+                URL url = new URL(Settings.DIRECCIO_SERVIDOR + Settings.PATH + "actualizarFechaEntregaPedido");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
